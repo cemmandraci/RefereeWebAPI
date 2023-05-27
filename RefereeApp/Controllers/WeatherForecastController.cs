@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Referee.Controllers;
+namespace RefereeApp.Controllers;
 
 [ApiController]
 [Route("[controller]")]
