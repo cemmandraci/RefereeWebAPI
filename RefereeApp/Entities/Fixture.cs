@@ -1,6 +1,6 @@
-using Referee.Entities.Enums;
+using RefereeApp.Entities.Enums;
 
-namespace Referee.Entities;
+namespace RefereeApp.Entities;
 
 public class Fixture : Base
 {
@@ -10,5 +10,6 @@ public class Fixture : Base
     public DateTime MatchTime { get; set; }
     public Difficulty DifficultyId { get; set; }
     public bool IsDerby { get; set; }
-    public Referee RefereeId { get; set; }
+    public int RefereeId { get; set; }
+    public Referee Referee { get; set; }
 }

@@ -1,4 +1,4 @@
-namespace Referee.Entities.Enums;
+namespace RefereeApp.Entities.Enums;
 
 public enum Difficulty : byte
 {

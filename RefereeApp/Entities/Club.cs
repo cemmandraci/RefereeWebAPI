@@ -1,4 +1,4 @@
-namespace Referee.Entities;
+namespace RefereeApp.Entities;
 
 public class Club : Base
 {

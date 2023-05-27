@@ -1,4 +1,4 @@
-namespace Referee;
+namespace RefereeApp;
 
 public class WeatherForecast
 {
