@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RefereeApp.Entities;
+using RefereeApp.Entities.Enums;
 
 namespace RefereeApp.Data;
 
@@ -19,26 +20,27 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 
-        modelBuilder.Entity<Referee>(entity =>
-        {
-            entity.HasKey(x => x.Id);
+        modelBuilder.Entity<Referee>()
+            .HasOne(x => x.RefereeLevel)
+            .WithOne(x => x.Referee)
+            .HasForeignKey<Referee>(x => x.RefLevelId);
 
-            entity.HasOne<RefereeLevel>(x => x.RefereeLevel)
-                .WithOne(x => x.Referee)
-                .HasForeignKey<RefereeLevel>(x => x.Id);
+        modelBuilder.Entity<Referee>()
+            .HasOne(x => x.RefereeRegion)
+            .WithOne(x => x.Referee)
+            .HasForeignKey<Referee>(x => x.RefRegionId);
 
-            entity.HasOne<RefereeRegion>(x => x.RefereeRegion)
-                .WithOne(x => x.Referee)
-                .HasForeignKey<RefereeRegion>(x => x.Id);
+        modelBuilder.Entity<FixtureClub>().HasKey(x => new {x.ClubId,x.FixtureId});
 
-        });
+        modelBuilder.Entity<FixtureClub>()
+            .HasOne(x => x.Fixture)
+            .WithMany(x => x.FixtureClubs)
+            .HasForeignKey(x => x.FixtureId);
 
-        modelBuilder.Entity<Fixture>(entity =>
-        {
-            entity.HasOne<Referee>(x => x.Referee)
-                .WithMany(x => x.Fixtures)
-                .HasForeignKey(x => x.Id);
-        });
-
+        modelBuilder.Entity<FixtureClub>()
+            .HasOne(x => x.Club)
+            .WithMany(x => x.FixtureClubs)
+            .HasForeignKey(x => x.ClubId);
+        
     }
 }
