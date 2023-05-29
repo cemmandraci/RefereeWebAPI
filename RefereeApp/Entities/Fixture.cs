@@ -12,4 +12,5 @@ public class Fixture : Base
     public bool IsDerby { get; set; }
     public int RefereeId { get; set; }
     public Referee Referee { get; set; }
+    public ICollection<FixtureClub> FixtureClubs { get; set; }
 }
