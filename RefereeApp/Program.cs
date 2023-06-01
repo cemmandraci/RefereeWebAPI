@@ -1,4 +1,7 @@
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using RefereeApp.Abstractions;
+using RefereeApp.Concretes;
 using RefereeApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +14,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 });
 
 builder.Services.AddControllers();
+
+builder.Services.AddFluentValidation(x =>
+{
+    x.RegisterValidatorsFromAssemblyContaining<Program>(lifetime: ServiceLifetime.Singleton);
+    x.DisableDataAnnotationsValidation = true;
+    
+});
+
+builder.Services.AddScoped<IRefereeLevelService, RefereeLevelService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
