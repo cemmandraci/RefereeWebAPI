@@ -22,7 +22,6 @@ builder.Services.AddFluentValidation(x =>
     
 });
 
-builder.Services.AddScoped<IRefereeLevelService, RefereeLevelService>();
 builder.Services.AddScoped<IRefereeService, RefereeService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

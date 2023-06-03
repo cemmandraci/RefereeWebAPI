@@ -12,5 +12,5 @@ public class Referee : Base
     public int RefRegionId { get; set; }
     public RefereeLevel RefereeLevel { get; set; }
     public RefereeRegion RefereeRegion { get; set; }
-    public List<Fixture> Fixtures { get; set; }
+    public virtual List<Fixture> Fixtures { get; set; }
 }
