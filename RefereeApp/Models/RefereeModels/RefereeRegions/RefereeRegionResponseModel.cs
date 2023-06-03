@@ -1,15 +1,14 @@
-﻿#nullable enable
-using FluentValidation;
+﻿using RefereeApp.Entities.Enums;
 
-namespace RefereeApp.Models.RefLevels;
+namespace RefereeApp.Models.RefereeModels;
 
-public class GetRefereeLevelsRequestModel
+public class RefereeRegionResponseModel
 {
     public int Id { get; set; }
-    public int StatusLevel { get; set; }
+    public Region RegionId { get; set; }
     public DateTime? CreatedAt { get; set; }
     public string? CreatedBy { get; set; }
     public DateTime? ChangedAt { get; set; }
     public string? ChangedBy { get; set; }
-    public bool? IsDeleted { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }

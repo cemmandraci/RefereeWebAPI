@@ -30,6 +30,12 @@ public class ApplicationDbContext : DbContext
             .WithOne(x => x.Referee)
             .HasForeignKey<Referee>(x => x.RefRegionId);
 
+        modelBuilder.Entity<Fixture>()
+            .HasOne(x => x.Referee)
+            .WithMany(x => x.Fixtures)
+            .HasForeignKey(x => x.RefId);
+            
+
         modelBuilder.Entity<FixtureClub>().HasKey(x => new {x.ClubId,x.FixtureId});
 
         modelBuilder.Entity<FixtureClub>()
