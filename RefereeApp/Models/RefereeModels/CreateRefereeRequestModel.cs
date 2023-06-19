@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RefereeApp.Models.RefLevels;
+using RefereeApp.Models.RefereeModels.RefLevels;
 
 namespace RefereeApp.Models.RefereeModels;
 
@@ -9,11 +9,11 @@ public class CreateRefereeRequestModel
     public string LastName { get; set; }
     public string Email { get; set; }
     public int PhoneNumber { get; set; }
-    public bool IsActive { get; set; }
-    public DateTime? CreatedAt { get; set; }
+    public bool IsActive { get; set; } = false;
+    public DateTime CreatedAt { get; set; }
     public string CreatedBy { get; set; }
     public DateTime? ChangedAt { get; set; }
-    public string? ChangedBy { get; set; }
+    public string ChangedBy { get; set; }
     public bool IsDeleted { get; set; } = false;
     public CreateRefereeRegionRequestModel RefereeRegion { get; set; }
     public CreateRefereeLevelsRequestModel RefereeLevels { get; set; }
@@ -29,6 +29,6 @@ public class CreateRefereeRequestModelValidator : AbstractValidator<CreateRefere
         RuleFor(x => x.IsActive).NotEmpty();
         RuleFor(x => x.CreatedBy).NotEmpty();
         RuleFor(x => x.RefereeRegion).SetValidator(x => new CreateRefereeRegionRequestModelValidator());
-        RuleFor(x => x.RefereeRegion).SetValidator(x => new CreateRefereeRegionRequestModelValidator());
+        RuleFor(x => x.RefereeLevels).SetValidator(x => new CreateRefereeLevelsRequestModelValidator());
     }
 }

@@ -2,8 +2,8 @@
 using RefereeApp.Abstractions;
 using RefereeApp.Data;
 using RefereeApp.Entities;
-using RefereeApp.Entities.Enums;
 using RefereeApp.Models.RefereeModels;
+using RefereeApp.Models.RefereeModels.RefereeRegions;
 using RefereeApp.Models.RefLevels;
 
 namespace RefereeApp.Concretes;
@@ -207,12 +207,12 @@ public class RefereeService : IRefereeService
         if (request.LastName is not null) entity.LastName = request.LastName;
         if (request.Email is not null) entity.Email = request.Email;
         if(request.IsActive is not null) entity.IsActive = (bool)request.IsActive;
-        entity.PhoneNumber = request.PhoneNumber;
+        if(request.PhoneNumber is not null) entity.PhoneNumber = (int)request.PhoneNumber;
+        entity.IsDeleted = request.IsDeleted;
         entity.ChangedBy = request.ChangedBy;
-        if (request.RefereeLevel.StatusLevel is not null) entity.RefereeLevel.StatusLevel = (int)request.RefereeLevel.StatusLevel;
-        entity.RefereeLevel.ChangedBy = request.RefereeLevel.ChangedBy;
-        if (request.RefereeRegion.RegionId is not null) entity.RefereeRegion.RegionId = (Region)request.RefereeRegion.RegionId;
-        entity.RefereeRegion.ChangedBy = request.RefereeRegion.ChangedBy;
+        //TODO: RefereeLevel ve RefereeRegion ayrı api den güncellenecek.
+
+        await _applicationDbContext.SaveChangesAsync();
 
         var response = new RefereeResponseModel()
         {
