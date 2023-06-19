@@ -1,4 +1,5 @@
 ﻿using RefereeApp.Entities;
+using RefereeApp.Models.RefereeModels.RefereeRegions;
 using RefereeApp.Models.RefLevels;
 
 namespace RefereeApp.Models.RefereeModels;

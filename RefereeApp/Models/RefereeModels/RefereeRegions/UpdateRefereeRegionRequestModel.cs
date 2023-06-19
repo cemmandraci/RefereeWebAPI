@@ -7,7 +7,7 @@ public class UpdateRefereeRegionRequestModel
 {
     public Region? RegionId { get; set; }
     public DateTime? CreatedAt { get; set; }
-    public string? CreatedBy { get; set; }
+    public string CreatedBy { get; set; }
     public DateTime ChangedAt { get; set; } = DateTime.Now;
     public string ChangedBy { get; set; }
     public bool IsDeleted { get; set; } = false;
