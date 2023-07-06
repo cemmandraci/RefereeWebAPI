@@ -17,6 +17,7 @@ namespace RefereeApp.Controllers
         }
         
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<RefereeResponseModel>>> Get()
         {
             var referee = await _refereeService.Get();
@@ -24,6 +25,9 @@ namespace RefereeApp.Controllers
         }
 
         [HttpGet("id")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<RefereeResponseModel>> Get([FromQuery] int id)
         {
             var referee = await _refereeService.GetById(id);
