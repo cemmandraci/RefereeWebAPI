@@ -194,6 +194,8 @@ public class FixtureService : IFixtureService
         entity.IsDerby = request.IsDerby;
         entity.MatchTime = request.MatchTime;
 
+        await _applicationDbContext.SaveChangesAsync();
+
         var response = new FixtureResponseModel()
         {
             Id = entity.Id,
