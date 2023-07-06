@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using RefereeApp.Abstractions;
 using RefereeApp.Data;
 using RefereeApp.Entities;
@@ -200,6 +201,7 @@ public class RefereeService : IRefereeService
 
         if (entity == default)
         {
+            //return StatusCodes(StatusCodes.Status404NotFound);
             throw new Exception("Entity is empty.");
         }
 
