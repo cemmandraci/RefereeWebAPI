@@ -18,5 +18,7 @@ public class UpdateClubRequestModelValidator : AbstractValidator<UpdateClubReque
     public UpdateClubRequestModelValidator()
     {
         RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.ChangedAt).NotEmpty();
+        RuleFor(x => x.ChangedBy).NotEmpty();
     }
 }

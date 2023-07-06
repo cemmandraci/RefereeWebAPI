@@ -17,5 +17,7 @@ public class CreateClubRequestModelValidator : AbstractValidator<CreateClubReque
     public CreateClubRequestModelValidator()
     {
         RuleFor(x => x.ClubName).NotEmpty();
+        RuleFor(x => x.CreatedAt).NotEmpty();
+        RuleFor(x => x.CreatedBy).NotEmpty();
     }
 }
