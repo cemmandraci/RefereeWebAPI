@@ -25,10 +25,6 @@ public class RefereeService : IRefereeService
             .Select(x => new RefereeResponseModel()
             {
                 Id = x.Id,
-                FirstName = x.FirstName,
-                LastName = x.LastName,
-                Email = x.Email,
-                PhoneNumber = x.PhoneNumber,
                 IsActive = x.IsActive,
                 CreatedAt = x.CreatedAt,
                 CreatedBy = x.CreatedBy,
@@ -75,10 +71,6 @@ public class RefereeService : IRefereeService
             .Select(x => new RefereeResponseModel()
             {
                 Id = x.Id,
-                FirstName = x.FirstName,
-                LastName = x.LastName,
-                Email = x.Email,
-                PhoneNumber = x.PhoneNumber,
                 IsActive = x.IsActive,
                 CreatedAt = x.CreatedAt,
                 CreatedBy = x.CreatedBy,
@@ -115,14 +107,11 @@ public class RefereeService : IRefereeService
         return response;
     }
 
+    //TODO : Create senaryosu createdAt ve changedAt default değerleri için postmande test edilecek.
     public async Task<RefereeResponseModel> Create(CreateRefereeRequestModel request)
     {
         var referee = new Referee()
         {
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
             IsActive = request.IsActive,
             CreatedAt = request.CreatedAt,
             CreatedBy = request.CreatedBy,
@@ -154,10 +143,6 @@ public class RefereeService : IRefereeService
         var response = new RefereeResponseModel()
         {
             Id = referee.Id,
-            FirstName = referee.FirstName,
-            LastName = referee.LastName,
-            Email = referee.Email,
-            PhoneNumber = referee.PhoneNumber,
             IsActive = referee.IsActive,
             RefLevelId = referee.RefLevelId,
             RefRegionId = referee.RefRegionId,
@@ -204,14 +189,11 @@ public class RefereeService : IRefereeService
             //return StatusCodes(StatusCodes.Status404NotFound);
             throw new Exception("Entity is empty.");
         }
-
-        if (request.FirstName is not null) entity.FirstName = request.FirstName;
-        if (request.LastName is not null) entity.LastName = request.LastName;
-        if (request.Email is not null) entity.Email = request.Email;
+        
         if(request.IsActive is not null) entity.IsActive = (bool)request.IsActive;
-        if(request.PhoneNumber is not null) entity.PhoneNumber = (int)request.PhoneNumber;
         entity.IsDeleted = request.IsDeleted;
         entity.ChangedBy = request.ChangedBy;
+        entity.ChangedAt = request.ChangedAt;
         //TODO: RefereeLevel ve RefereeRegion ayrı api den güncellenecek.
 
         await _applicationDbContext.SaveChangesAsync();
@@ -219,10 +201,6 @@ public class RefereeService : IRefereeService
         var response = new RefereeResponseModel()
         {
             Id = entity.Id,
-            FirstName = entity.FirstName,
-            LastName = entity.LastName,
-            Email = entity.Email,
-            PhoneNumber = entity.PhoneNumber,
             RefLevelId = entity.RefLevelId,
             RefRegionId = entity.RefRegionId,
             IsActive = entity.IsActive,
