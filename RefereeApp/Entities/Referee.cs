@@ -4,7 +4,7 @@ public class Referee : Base
 {
     public int Id { get; set; }
     public bool IsActive { get; set; }
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
     public int RefLevelId { get; set; }
     public int RefRegionId { get; set; }
     public RefereeLevel RefereeLevel { get; set; }
