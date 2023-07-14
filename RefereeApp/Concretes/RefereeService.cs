@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RefereeApp.Abstractions;
 using RefereeApp.Data;
@@ -55,7 +56,7 @@ public class RefereeService : IRefereeService
 
         if (response == default)
         {
-            throw new Exception("Entity can not be empty.");
+            throw new Exception("Hata");
         }
 
         return response;

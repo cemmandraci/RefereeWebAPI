@@ -12,11 +12,11 @@ namespace RefereeApp.Concretes;
 
 public class AuthService : IAuthService
 {
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
 
-    public AuthService(IConfiguration configuration, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+    public AuthService(IConfiguration configuration, RoleManager<IdentityRole> roleManager, UserManager<User> userManager)
     {
         _configuration = configuration;
         _roleManager = roleManager;
@@ -68,7 +68,7 @@ public class AuthService : IAuthService
             return new ResponseModel() { Status = 500, Message = "Hata"};
         }
 
-        var newUser = new IdentityUser()
+        var newUser = new User()
         {
             Email = request.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
@@ -100,7 +100,7 @@ public class AuthService : IAuthService
             return new ResponseModel() { Status = 400, Message = "Username is already exist." };
         }
 
-        var user = new IdentityUser()
+        var user = new User()
         {
             Email = request.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
@@ -151,7 +151,7 @@ public class AuthService : IAuthService
 
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
-        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SEcret"]));
+        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],

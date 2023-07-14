@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using RefereeApp.Abstractions;
 using RefereeApp.Concretes;
 using RefereeApp.Data;
+using RefereeApp.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -19,7 +20,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("RefereeDbConnection"));
 });
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -52,6 +53,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddScoped<IRefereeService, RefereeService>();
 builder.Services.AddScoped<IFixtureService, FixtureService>();
 builder.Services.AddScoped<IClubService, ClubService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
