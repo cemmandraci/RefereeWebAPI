@@ -91,7 +91,9 @@ public class AuthService : IAuthService
         return response;
 
     }
-
+    
+    
+    //TODO : Register admin ile roller nasıl çalışıyor , debug atılacak , belki güncellenebilir !
     public async Task<ResponseModel> RegisterAdmin(RegisterModel request)
     {
         var userExist = await _userManager.FindByNameAsync(request.UserName);

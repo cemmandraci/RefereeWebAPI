@@ -6,6 +6,7 @@ namespace RefereeApp.Models.RefereeModels;
 public class RefereeResponseModel
 {
     public int Id { get; set; }
+    public string UserId { get; set; }
     public int RefLevelId { get; set; }
     public int RefRegionId { get; set; }
     public bool IsActive { get; set; }

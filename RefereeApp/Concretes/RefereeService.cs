@@ -109,6 +109,7 @@ public class RefereeService : IRefereeService
     }
 
     //TODO : Create senaryosu createdAt ve changedAt default değerleri için postmande test edilecek.
+    //TODO : Genel test çevrilecek !
     public async Task<RefereeResponseModel> Create(CreateRefereeRequestModel request)
     {
         var referee = new Referee()
@@ -177,6 +178,7 @@ public class RefereeService : IRefereeService
 
     }
 
+    //TODO: RefereeLevel ve RefereeRegion ayrı api den güncellenecek.
     public async Task<RefereeResponseModel> Update(UpdateRefereeRequestModel request)
     {
         var entity = await _applicationDbContext.Referees
@@ -187,7 +189,6 @@ public class RefereeService : IRefereeService
 
         if (entity == default)
         {
-            //return StatusCodes(StatusCodes.Status404NotFound);
             throw new Exception("Entity is empty.");
         }
         
@@ -195,7 +196,6 @@ public class RefereeService : IRefereeService
         entity.IsDeleted = request.IsDeleted;
         entity.ChangedBy = request.ChangedBy;
         entity.ChangedAt = request.ChangedAt;
-        //TODO: RefereeLevel ve RefereeRegion ayrı api den güncellenecek.
 
         await _applicationDbContext.SaveChangesAsync();
 

@@ -15,7 +15,7 @@ public class ClubService : IClubService
         _applicationDbContext = applicationDbContext;
     }
 
-
+    //TODO : Club - Genel test çevrilecek.
     public async Task<ClubResponseModel> Get(int id)
     {
         var response = await _applicationDbContext.Clubs
