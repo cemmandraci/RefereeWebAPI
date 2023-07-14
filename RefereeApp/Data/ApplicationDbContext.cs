@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RefereeApp.Entities;
 using RefereeApp.Entities.Enums;
+using RefereeApp.Models.AuthModels;
 
 namespace RefereeApp.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<User>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -19,6 +21,7 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Referee>()
             .HasOne(x => x.RefereeLevel)
@@ -48,5 +51,10 @@ public class ApplicationDbContext : DbContext
             .WithMany(x => x.FixtureClubs)
             .HasForeignKey(x => x.ClubId);
         
+        modelBuilder.Entity<Referee>()
+            .HasOne(x => x.Users)
+            .WithOne(x => x.Referee)
+            .HasForeignKey<Referee>(x => x.UserId);
+
     }
 }

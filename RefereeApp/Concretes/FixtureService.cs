@@ -73,8 +73,8 @@ public class FixtureService : IFixtureService
     public async Task<FixtureResponseModel> Create(CreateFixtureRequestModel request)
     {
         
-        // TODO : Club ile ilgili ne yapacaksın ?
-        // TODO : Club servisi için api yazılacak ayrı arayüzü olacak takım eklenecek çıkarılacak.
+        // TODO : Club ile ilgili ne yapacaksın ? //DONE//
+        // TODO : Club servisi için api yazılacak ayrı arayüzü olacak takım eklenecek çıkarılacak. //DONE//
         // TODO : Home ve away teamler club tablosunun içinde olmak zorunda , ya fleunt api ile yapılacak yada fonksiyon yazılacak
         // TODO : isDeleted alanları için kontrollere eklemeyi unutma ! // DONE //
         // TODO : isUnique() fonksiyonu için takımların büyük/küçük harf duyarlılıgına önlem almayı unutma ! // DONE //
