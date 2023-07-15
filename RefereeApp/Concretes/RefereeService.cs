@@ -13,14 +13,17 @@ namespace RefereeApp.Concretes;
 public class RefereeService : IRefereeService
 {
     private readonly ApplicationDbContext _applicationDbContext;
+    private readonly ILogger<RefereeService> _logger;
 
-    public RefereeService(ApplicationDbContext applicationDbContext)
+    public RefereeService(ApplicationDbContext applicationDbContext, ILogger<RefereeService> logger)
     {
         _applicationDbContext = applicationDbContext;
+        _logger = logger;
     }
 
     public async Task<List<RefereeResponseModel>> Get()
     {
+        _logger.LogInformation("Referee Get() | Function is starting.");
         var response = await _applicationDbContext.Referees
             .AsNoTracking()
             .Select(x => new RefereeResponseModel()
@@ -56,14 +59,17 @@ public class RefereeService : IRefereeService
 
         if (response == default)
         {
+            _logger.LogError("Referee Get() | There isn't exist referee list, fetch is failed.");
             throw new Exception("Hata");
         }
 
+        _logger.LogInformation("Referee Get() | Referee list fetched successfully.");
         return response;
     }
 
     public async Task<RefereeResponseModel> GetById(int id)
     {
+        _logger.LogInformation("Referee GetById() | Function is starting.");
         var response = await _applicationDbContext.Referees
             .AsNoTracking()
             .Include(x=>x.RefereeLevel)
@@ -102,9 +108,11 @@ public class RefereeService : IRefereeService
 
         if (response == default)
         {
-            throw new Exception("Entity can not be empty");
+            _logger.LogError("Referee GetById() | There is no any {id} referee entity, fetch is failed.", id);
+            throw new Exception("Something wrong.");
         }
-
+        
+        _logger.LogInformation("Referee GetById() | Fetch is successful.");
         return response;
     }
 
@@ -112,6 +120,7 @@ public class RefereeService : IRefereeService
     //TODO : Genel test çevrilecek !
     public async Task<RefereeResponseModel> Create(CreateRefereeRequestModel request)
     {
+        _logger.LogInformation("Referee Create() | Function is starting.");
         var referee = new Referee()
         {
             IsActive = request.IsActive,
@@ -174,6 +183,8 @@ public class RefereeService : IRefereeService
             }
         };
 
+        _logger.LogInformation("Referee Create() | Referee entity is created successfully.");
+        
         return response;
 
     }
@@ -181,6 +192,8 @@ public class RefereeService : IRefereeService
     //TODO: RefereeLevel ve RefereeRegion ayrı api den güncellenecek.
     public async Task<RefereeResponseModel> Update(UpdateRefereeRequestModel request)
     {
+        _logger.LogInformation("Referee Update() | Function is starting.");
+        _logger.LogInformation("Referee Update() | To finding entity from db is starting.");
         var entity = await _applicationDbContext.Referees
             .Include(x=>x.RefereeLevel)
             .Include(x=>x.RefereeRegion)
@@ -189,7 +202,8 @@ public class RefereeService : IRefereeService
 
         if (entity == default)
         {
-            throw new Exception("Entity is empty.");
+            _logger.LogError("Referee Update() | Fetching {id} entity is failed.", request.Id);
+            throw new Exception("Something wrong.");
         }
         
         if(request.IsActive is not null) entity.IsActive = (bool)request.IsActive;
@@ -231,7 +245,9 @@ public class RefereeService : IRefereeService
                 IsDeleted = entity.RefereeRegion.IsDeleted
             }
         };
-
+        
+        _logger.LogInformation("Referee Update() | Referee entity is updated successfully.");
+        
         return response;
 
     }

@@ -9,9 +9,20 @@ using RefereeApp.Abstractions;
 using RefereeApp.Concretes;
 using RefereeApp.Data;
 using RefereeApp.Entities;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
+
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(new ConfigurationBuilder()
+        .AddJsonFile("seri-log.config.json")
+        .Build())
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
 
