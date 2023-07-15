@@ -26,6 +26,7 @@ public class AuthService : IAuthService
     }
 
     //TODO: Loglarda register admin alanı boş, oraya bakılacak ! 
+    //TODO: Log testleri çevrilecek !
     public async Task<ResponseModel> Login(LoginModel request)
     {
         _logger.LogInformation("Login User | Function is starting.");
