@@ -15,16 +15,20 @@ public class AuthService : IAuthService
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(IConfiguration configuration, RoleManager<IdentityRole> roleManager, UserManager<User> userManager)
+    public AuthService(IConfiguration configuration, RoleManager<IdentityRole> roleManager, UserManager<User> userManager, ILogger<AuthService> logger)
     {
         _configuration = configuration;
         _roleManager = roleManager;
         _userManager = userManager;
+        _logger = logger;
     }
 
+    //TODO: Loglarda register admin alanı boş, oraya bakılacak ! 
     public async Task<ResponseModel> Login(LoginModel request)
     {
+        _logger.LogInformation("Login User | Function is starting.");
         var user = await _userManager.FindByNameAsync(request.UserName);
 
         if (user != default && await _userManager.CheckPasswordAsync(user, request.Password))
@@ -43,6 +47,8 @@ public class AuthService : IAuthService
             }
 
             var token = GetToken(authClaims);
+            
+            _logger.LogInformation("Login User | {username} user is authenticating the system.", user.UserName);
 
             return new ResponseModel()
             {
@@ -52,6 +58,8 @@ public class AuthService : IAuthService
                 expiration = token.ValidTo
             };
         }
+        
+        _logger.LogInformation("Login User | Login failed.");
 
         return new ResponseModel()
         {
@@ -62,9 +70,11 @@ public class AuthService : IAuthService
 
     public async Task<ResponseModel> Register(RegisterModel request)
     {
+        _logger.LogInformation("Register User | Function is starting");
         var userExist = await _userManager.FindByNameAsync(request.UserName);
         if (userExist != null)
         {
+            _logger.LogInformation("Register User | {username} does not exist.",request.UserName);
             return new ResponseModel() { Status = 500, Message = "Hata"};
         }
 
@@ -79,6 +89,7 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
+            _logger.LogInformation("Register User | New user couldn't be created.");
             return new ResponseModel() { Status = 400, Message = "Something wrong." };
         }
 
@@ -87,6 +98,8 @@ public class AuthService : IAuthService
             Status = 200,
             Message = "User has been succesfully created."
         };
+        
+        _logger.LogInformation("Register User | User successfully created.");
 
         return response;
 
@@ -158,7 +171,7 @@ public class AuthService : IAuthService
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],
             audience: _configuration["JWT:ValidAudience"],
-            expires: DateTime.Now.AddHours(3),
+            expires: DateTime.Now.AddDays(1),
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
         );

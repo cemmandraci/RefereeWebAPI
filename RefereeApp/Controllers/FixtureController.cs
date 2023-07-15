@@ -20,14 +20,14 @@ namespace RefereeApp.Controllers
         [HttpGet]
         public async Task<ActionResult<List<FixtureResponseModel>>> Get()
         {
-            var fixture = await _fixtureService.GetAll();
+            var fixture = await _fixtureService.Get();
             return Ok(fixture);
         }
 
         [HttpGet("id")]
         public async Task<ActionResult<FixtureResponseModel>> Get([FromQuery] int id)
         {
-            var fixture = await _fixtureService.Get(id);
+            var fixture = await _fixtureService.GetById(id);
             return Ok(fixture);
         }
 

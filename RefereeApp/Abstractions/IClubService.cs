@@ -4,8 +4,8 @@ namespace RefereeApp.Abstractions;
 
 public interface IClubService
 {
-    Task<ClubResponseModel> Get(int id);
-    Task<List<ClubResponseModel>> GetAll();
+    Task<ClubResponseModel> GetById(int id);
+    Task<List<ClubResponseModel>> Get();
     Task<ClubResponseModel> Create(CreateClubRequestModel request);
     Task<ClubResponseModel> Update(UpdateClubRequestModel request);
 }

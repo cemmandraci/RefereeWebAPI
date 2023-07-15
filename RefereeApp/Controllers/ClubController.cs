@@ -18,14 +18,14 @@ namespace RefereeApp.Controllers
         [HttpGet]
         public async Task<ActionResult<List<ClubResponseModel>>> Get()
         {
-            var club = await _clubService.GetAll();
+            var club = await _clubService.Get();
             return Ok(club);
         }
 
         [HttpGet("id")]
         public async Task<ActionResult<ClubResponseModel>> Get([FromQuery] int id)
         {
-            var club = await _clubService.Get(id);
+            var club = await _clubService.GetById(id);
             return Ok(club);
         }
 

@@ -10,14 +10,17 @@ namespace RefereeApp.Concretes;
 public class FixtureService : IFixtureService
 {
     private readonly ApplicationDbContext _applicationDbContext;
+    private readonly ILogger<FixtureService> _logger;
 
-    public FixtureService(ApplicationDbContext applicationDbContext)
+    public FixtureService(ApplicationDbContext applicationDbContext, ILogger<FixtureService> logger)
     {
         _applicationDbContext = applicationDbContext;
+        _logger = logger;
     }
 
-    public async Task<FixtureResponseModel> Get(int id)
+    public async Task<FixtureResponseModel> GetById(int id)
     {
+        _logger.LogInformation("Fixture Get() | Function is starting.");
         var response = await _applicationDbContext.Fixtures
             .Where(x => x.Id == id)
             .Select(x => new FixtureResponseModel()
@@ -37,14 +40,18 @@ public class FixtureService : IFixtureService
 
         if (response == default)
         {
-            throw new Exception("Fixture couldn't find");
+            _logger.LogError("Fixture Get() | There is no any {id} fixture entity, fetch is failed.", id);
+            throw new Exception("Something wrong.");
         }
+        
+        _logger.LogInformation("Fixture Get() | Fetch is successful.");
 
         return response;
     }
 
-    public async Task<List<FixtureResponseModel>> GetAll()
+    public async Task<List<FixtureResponseModel>> Get()
     {
+        _logger.LogInformation("Fixture Get() | Function is starting.");
         var response = await _applicationDbContext.Fixtures
             .AsNoTracking()
             .Select(x => new FixtureResponseModel()
@@ -64,14 +71,18 @@ public class FixtureService : IFixtureService
 
         if (response == default)
         {
-            throw new Exception("Fixture list couldn't find.");
+            _logger.LogError("Fixture Get() | There isn't exist fixture list, fetch is failed.");
+            throw new Exception("Something wrong.");
         }
+        
+        _logger.LogInformation("Fixture Get() | Club list fetched successfully.");
 
         return response;
     }
 
     public async Task<FixtureResponseModel> Create(CreateFixtureRequestModel request)
     {
+        _logger.LogInformation("Fixture Create() | Function is starting.");
         
         // TODO : Club ile ilgili ne yapacaksın ? //DONE//
         // TODO : Club servisi için api yazılacak ayrı arayüzü olacak takım eklenecek çıkarılacak. //DONE//
@@ -81,6 +92,7 @@ public class FixtureService : IFixtureService
         // TODO : Derbi maç ve difficulty kısıtlamalarını eklemeyi unutma ! // DONE //
         // TODO : Program.cs dosyasında fluent api için migration değişti kontrol edilecek ! // DONE //
 
+        _logger.LogInformation("Fixture Create() | To checking referee is starting.");
         var refereeControl = await _applicationDbContext.Referees
             .AsNoTracking()
             .Include(x=>x.RefereeLevel)
@@ -90,35 +102,43 @@ public class FixtureService : IFixtureService
 
         if (refereeControl == default)
         {
-            throw new Exception("Referee couldn't found.");
+            _logger.LogError("Fixture Create() | There isn't exist {refereeId} referee, fetch is failed.",request.RefId);
+            throw new Exception("Something wrong.");
         }
         
+        _logger.LogInformation("Fixture Create() | To checking teams uniqueness is starting.");
         var teamControl = IsUnique(request.HomeTeam, request.AwayTeam);
 
         if (!teamControl)
         {
-            throw new Exception("Teams can not be the same.");
+            _logger.LogError("Fixture Create() | Teams can not be the same.");
+            throw new Exception("Something wrong.");
         }
-
+        
         if (refereeControl.IsActive)
         {
+            _logger.LogInformation("Fixture Create() | To checking referee activiness is starting.");
             var check = CanAttend(request.CreatedAt, request.MatchTime);
 
             if (!check)
             {
-                throw new Exception("You can not attend referee in this match");
+                _logger.LogError("Fixture Create() | The referee cannot be attend in this match.");
+                throw new Exception("Something wrong.");
             }
         }
 
+        _logger.LogInformation("Fixture Create() | To checking difficultiness of match is starting.");
         var difficultyControl = refereeControl.RefereeLevel.StatusLevel != null && StatusOfMatch((int)refereeControl.RefereeLevel.StatusLevel, request.DifficultyId,
             request.IsDerby);
 
         if (!difficultyControl)
         {
-            throw new Exception("You can't assign the refeere. Match diffuculty is not match with the ref status level.");
+            _logger.LogError("Fixture Create() | Referee can't assign the match.Match difficulty {diff} is not match with the ref status level", request.DifficultyId);
+            throw new Exception("Something wrong.");
         }
        
 
+        _logger.LogInformation("Fixture Create() | Fixture entity is starting to create.");
         var fixture = new Fixture()
         {
             HomeTeam = request.HomeTeam,
@@ -136,7 +156,8 @@ public class FixtureService : IFixtureService
 
         if (fixture == default)
         {
-            throw new Exception("Fixture couldn't created.");
+            _logger.LogError("Fixture Create() | Fixture entity couldn't created.");
+            throw new Exception("Something wrong.");
         }
 
         _applicationDbContext.Add(fixture);
@@ -157,6 +178,8 @@ public class FixtureService : IFixtureService
             ChangedBy = fixture.ChangedBy,
             IsDeleted = fixture.IsDeleted,
         };
+        
+        _logger.LogInformation("Fixture Create() | Fixture entity is created successfully.");
 
         return response;
 
@@ -164,13 +187,17 @@ public class FixtureService : IFixtureService
 
     public async Task<FixtureResponseModel> Update(UpdateFixtureRequestModel request)
     {
+        _logger.LogInformation("Fixture Update() | Function is starting.");
+        _logger.LogInformation("Fixture Update() | To finding entity from db is starting.");
         var entity = await _applicationDbContext.Fixtures.Include(x=>x.Referee).Where(x => x.Id == request.Id).FirstOrDefaultAsync();
 
         if (entity == default)
         {
-            throw new Exception("Entity couldn't find.");
+            _logger.LogError("Fixture Update() | Fetching {id} entity is failed.", request.Id);
+            throw new Exception("Something wrong.");
         }
-
+        
+        _logger.LogInformation("Fixture Update() | To checking teams uniqueness is starting.");
         var teamControl = IsUnique(request.HomeTeam, request.AwayTeam);
 
         if (teamControl)
@@ -178,9 +205,14 @@ public class FixtureService : IFixtureService
             if (request.HomeTeam is not null) entity.HomeTeam = request.HomeTeam;
             if (request.AwayTeam is not null) entity.AwayTeam = request.AwayTeam;
         }
+        else
+        {
+            _logger.LogError("Fixture Update() | Teams can not be same.");
+        }
 
         if (entity.Referee.IsActive)
         {
+            _logger.LogInformation("Fixture Update() | To checking referee activiness is starting.");
             var refereeControl = CanAttend(entity.CreatedAt, request.MatchTime);
 
             if (refereeControl)
@@ -211,6 +243,8 @@ public class FixtureService : IFixtureService
             ChangedBy = entity.ChangedBy,
             IsDeleted = entity.IsDeleted
         };
+        
+        _logger.LogInformation("Fixture Update() | Fixture entity is updated successfully.");
 
         return response;
     }
