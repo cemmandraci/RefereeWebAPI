@@ -164,7 +164,7 @@ public class AuthService : IAuthService
 
     }
 
-    //TODO : Token süresi uzatılabilir.
+    //TODO : Token süresi uzatılabilir.//DONE
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
