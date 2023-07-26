@@ -2,10 +2,10 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RefereeApp.Abstractions;
 using RefereeApp.Entities;
+using RefereeApp.Exceptions;
 using RefereeApp.Models.AuthModels;
 
 namespace RefereeApp.Concretes;
@@ -38,7 +38,7 @@ public class AuthService : IAuthService
 
             var authClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName ?? throw new NotFoundException("An error occured !")),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -53,20 +53,13 @@ public class AuthService : IAuthService
 
             return new ResponseModel()
             {
-                Status = 200,
-                Message = "Successfull",
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo
             };
         }
         
-        _logger.LogInformation("Login User | Login failed.");
-
-        return new ResponseModel()
-        {
-            Status = 400,
-            Message = "Something wrong."
-        };
+        _logger.LogError("Login User | Login failed.");
+        throw new BadRequestException("Username or password is not correct !");
     }
 
     public async Task<ResponseModel> Register(RegisterModel request)
@@ -76,7 +69,7 @@ public class AuthService : IAuthService
         if (userExist != null)
         {
             _logger.LogInformation("Register User | {username} does not exist.",request.UserName);
-            return new ResponseModel() { Status = 500, Message = "Hata"};
+            throw new NotFoundException("An error occured !");
         }
 
         var newUser = new User()
@@ -91,7 +84,7 @@ public class AuthService : IAuthService
         if (!result.Succeeded)
         {
             _logger.LogInformation("Register User | New user couldn't be created.");
-            return new ResponseModel() { Status = 400, Message = "Something wrong." };
+            throw new BadRequestException("An error occured !");
         }
 
         var response = new ResponseModel()
@@ -127,7 +120,7 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
-            return new ResponseModel() { Status = 500, Message = "User creation failed!" };
+            throw new BadRequestException("An error occured !");
         }
 
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
@@ -167,7 +160,7 @@ public class AuthService : IAuthService
     //TODO : Token süresi uzatılabilir.//DONE
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
-        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"] ?? throw new NullReferenceException("An error occured !")));
 
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],
