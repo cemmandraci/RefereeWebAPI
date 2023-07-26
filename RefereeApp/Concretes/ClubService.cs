@@ -2,6 +2,7 @@
 using RefereeApp.Abstractions;
 using RefereeApp.Data;
 using RefereeApp.Entities;
+using RefereeApp.Exceptions;
 using RefereeApp.Models.ClubModels;
 
 namespace RefereeApp.Concretes;
@@ -37,7 +38,7 @@ public class ClubService : IClubService
         if (response == default)
         {
             _logger.LogError("Club GetById() | There is no any {id} club entity, fetch is failed.", id);
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
         
         _logger.LogInformation("Club GetById() | Fetch is successful.");
@@ -63,7 +64,7 @@ public class ClubService : IClubService
         if (response == default)
         {
             _logger.LogError("Club Get() | There aren't exist club list, fetch is failed.");
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
 
         _logger.LogInformation("Fixture Get() | Club list fetched successfully.");
@@ -86,7 +87,7 @@ public class ClubService : IClubService
         if (club == default)
         {
             _logger.LogError("Club Create() | Club entity couldn't created.");
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
 
         _applicationDbContext.Add(club);
@@ -103,7 +104,6 @@ public class ClubService : IClubService
         };
         
         _logger.LogInformation("Club Create() | Club entity is created successfully.");
-
         return response;
 
     }
@@ -119,7 +119,7 @@ public class ClubService : IClubService
         if (club == default)
         {
             _logger.LogError("Club Update() | Fetching {id} entity is failed.", request.Id);
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
 
         if (request.ClubName is not null) club.ClubName = request.ClubName;

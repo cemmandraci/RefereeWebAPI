@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RefereeApp.Abstractions;
 using RefereeApp.Data;
 using RefereeApp.Entities;
+using RefereeApp.Exceptions;
 using RefereeApp.Models.RefereeModels;
 using RefereeApp.Models.RefereeModels.RefereeRegions;
 using RefereeApp.Models.RefLevels;
@@ -60,7 +61,7 @@ public class RefereeService : IRefereeService
         if (response == default)
         {
             _logger.LogError("Referee Get() | There isn't exist referee list, fetch is failed.");
-            throw new Exception("Hata");
+            throw new NotFoundException("An error occured !");
         }
 
         _logger.LogInformation("Referee Get() | Referee list fetched successfully.");
@@ -108,8 +109,8 @@ public class RefereeService : IRefereeService
 
         if (response == default)
         {
-            _logger.LogError("Referee GetById() | There is no any {id} referee entity, fetch is failed.", id);
-            throw new Exception("Something wrong.");
+            _logger.LogError("Referee GetById() | There is no any {id} id' referee entity, fetch is failed.", id);
+            throw new NotFoundException("An error occured !");
         }
         
         _logger.LogInformation("Referee GetById() | Fetch is successful.");
@@ -203,7 +204,7 @@ public class RefereeService : IRefereeService
         if (entity == default)
         {
             _logger.LogError("Referee Update() | Fetching {id} entity is failed.", request.Id);
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
         
         if(request.IsActive is not null) entity.IsActive = (bool)request.IsActive;

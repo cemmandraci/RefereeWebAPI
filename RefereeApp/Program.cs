@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RefereeApp.Abstractions;
 using RefereeApp.Concretes;
+using RefereeApp.Configurations;
 using RefereeApp.Data;
 using RefereeApp.Entities;
 using Serilog;
@@ -82,6 +83,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.AddGlobalErrorHandler();
 
 app.MapControllers();
 

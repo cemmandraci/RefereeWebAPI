@@ -3,6 +3,7 @@ using RefereeApp.Abstractions;
 using RefereeApp.Data;
 using RefereeApp.Entities;
 using RefereeApp.Entities.Enums;
+using RefereeApp.Exceptions;
 using RefereeApp.Models.FixtureModels;
 
 namespace RefereeApp.Concretes;
@@ -41,7 +42,7 @@ public class FixtureService : IFixtureService
         if (response == default)
         {
             _logger.LogError("Fixture Get() | There is no any {id} fixture entity, fetch is failed.", id);
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
         
         _logger.LogInformation("Fixture Get() | Fetch is successful.");
@@ -72,7 +73,7 @@ public class FixtureService : IFixtureService
         if (response == default)
         {
             _logger.LogError("Fixture Get() | There isn't exist fixture list, fetch is failed.");
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
         
         _logger.LogInformation("Fixture Get() | Club list fetched successfully.");
@@ -103,7 +104,7 @@ public class FixtureService : IFixtureService
         if (refereeControl == default)
         {
             _logger.LogError("Fixture Create() | There isn't exist {refereeId} referee, fetch is failed.",request.RefId);
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
         
         _logger.LogInformation("Fixture Create() | To checking teams uniqueness is starting.");
@@ -112,7 +113,7 @@ public class FixtureService : IFixtureService
         if (!teamControl)
         {
             _logger.LogError("Fixture Create() | Teams can not be the same.");
-            throw new Exception("Something wrong.");
+            throw new BadRequestException("An error occured !");
         }
         
         if (refereeControl.IsActive)
@@ -123,7 +124,7 @@ public class FixtureService : IFixtureService
             if (!check)
             {
                 _logger.LogError("Fixture Create() | The referee cannot be attend in this match.");
-                throw new Exception("Something wrong.");
+                throw new BadRequestException("An error occured !");
             }
         }
 
@@ -134,7 +135,7 @@ public class FixtureService : IFixtureService
         if (!difficultyControl)
         {
             _logger.LogError("Fixture Create() | Referee can't assign the match.Match difficulty {diff} is not match with the ref status level", request.DifficultyId);
-            throw new Exception("Something wrong.");
+            throw new BadRequestException("An error occured !");
         }
        
 
@@ -157,7 +158,7 @@ public class FixtureService : IFixtureService
         if (fixture == default)
         {
             _logger.LogError("Fixture Create() | Fixture entity couldn't created.");
-            throw new Exception("Something wrong.");
+            throw new BadRequestException("An error occured !");
         }
 
         _applicationDbContext.Add(fixture);
@@ -194,7 +195,7 @@ public class FixtureService : IFixtureService
         if (entity == default)
         {
             _logger.LogError("Fixture Update() | Fetching {id} entity is failed.", request.Id);
-            throw new Exception("Something wrong.");
+            throw new NotFoundException("An error occured !");
         }
         
         _logger.LogInformation("Fixture Update() | To checking teams uniqueness is starting.");
@@ -208,6 +209,7 @@ public class FixtureService : IFixtureService
         else
         {
             _logger.LogError("Fixture Update() | Teams can not be same.");
+            throw new BadRequestException("An error occured !");
         }
 
         if (entity.Referee.IsActive)
@@ -218,6 +220,11 @@ public class FixtureService : IFixtureService
             if (refereeControl)
             {
                 entity.RefId = request.RefId;
+            }
+            else
+            {
+                _logger.LogError("Fixture Update() | Referee id couldn't be updated.");
+                throw new BadRequestException("An error occured !");
             }
         }
 
@@ -253,7 +260,7 @@ public class FixtureService : IFixtureService
     {
         if (string.Equals(firstClub, secondClub, StringComparison.CurrentCultureIgnoreCase))
         {
-            throw new Exception("Teams can not be the same.");
+            throw new BadRequestException("An error occured !");
         }
 
         return true;
