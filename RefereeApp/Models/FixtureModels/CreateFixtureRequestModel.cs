@@ -1,6 +1,8 @@
 ﻿#nullable enable
 using FluentValidation;
+using RefereeApp.Entities;
 using RefereeApp.Entities.Enums;
+using RefereeApp.Models.ClubModels;
 
 namespace RefereeApp.Models.FixtureModels;
 
@@ -23,6 +25,7 @@ public class CreateFixtureRequestModel
     public DateTime? ChangedAt { get; set; }
     public string? ChangedBy { get; set; }
     public bool IsDeleted { get; set; } = false;
+    public List<ClubResponseModel> Clubs { get; set; }
 }
 
 public class CreateFixtureRequestModelValidator : AbstractValidator<CreateFixtureRequestModel>

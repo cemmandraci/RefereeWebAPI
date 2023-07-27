@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RefereeApp.Abstractions;
 using RefereeApp.Models.FixtureModels;
 using RefereeApp.Models.RefereeModels;
@@ -6,6 +7,7 @@ using RefereeApp.Models.RefLevels;
 
 namespace RefereeApp.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class FixtureController : ControllerBase

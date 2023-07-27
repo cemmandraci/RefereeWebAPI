@@ -100,22 +100,36 @@ public class FixtureService : IFixtureService
             .Where(x => x.Id == request.RefId && !x.IsDeleted)
             .FirstOrDefaultAsync();
 
-
+        var clubNames = await _applicationDbContext.Clubs
+            .AsNoTracking()
+            .ToListAsync();
+        
         if (refereeControl == default)
         {
             _logger.LogError("Fixture Create() | There isn't exist {refereeId} referee, fetch is failed.",request.RefId);
             throw new NotFoundException("An error occured !");
         }
         
-        _logger.LogInformation("Fixture Create() | To checking teams uniqueness is starting.");
-        var teamControl = IsUnique(request.HomeTeam, request.AwayTeam);
-
-        if (!teamControl)
+        //TODO : Test edilecek !
+        foreach (var club in clubNames)
         {
-            _logger.LogError("Fixture Create() | Teams can not be the same.");
+            
+            if (club.ClubName == request.HomeTeam || club.ClubName == request.AwayTeam)
+            {
+                _logger.LogInformation("Fixture Create() | To checking teams uniqueness is starting.");
+                var teamControl = IsUnique(request.HomeTeam, request.AwayTeam);
+
+                if (!teamControl)
+                {
+                    _logger.LogError("Fixture Create() | Teams can not be the same.");
+                    throw new BadRequestException("An error occured !");
+                }
+            }
+            
+            _logger.LogError("Fixture Create() | Teams don't contain in club list !");
             throw new BadRequestException("An error occured !");
         }
-        
+
         if (refereeControl.IsActive)
         {
             _logger.LogInformation("Fixture Create() | To checking referee activiness is starting.");
@@ -137,7 +151,7 @@ public class FixtureService : IFixtureService
             _logger.LogError("Fixture Create() | Referee can't assign the match.Match difficulty {diff} is not match with the ref status level", request.DifficultyId);
             throw new BadRequestException("An error occured !");
         }
-       
+
 
         _logger.LogInformation("Fixture Create() | Fixture entity is starting to create.");
         var fixture = new Fixture()
@@ -255,6 +269,7 @@ public class FixtureService : IFixtureService
 
         return response;
     }
+    
 
     private static bool IsUnique(string firstClub, string secondClub)
     {

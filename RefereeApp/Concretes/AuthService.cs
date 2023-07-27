@@ -7,6 +7,7 @@ using RefereeApp.Abstractions;
 using RefereeApp.Entities;
 using RefereeApp.Exceptions;
 using RefereeApp.Models.AuthModels;
+using NotImplementedException = System.NotImplementedException;
 
 namespace RefereeApp.Concretes;
 
@@ -16,13 +17,15 @@ public class AuthService : IAuthService
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthService> _logger;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public AuthService(IConfiguration configuration, RoleManager<IdentityRole> roleManager, UserManager<User> userManager, ILogger<AuthService> logger)
+    public AuthService(IConfiguration configuration, RoleManager<IdentityRole> roleManager, UserManager<User> userManager, ILogger<AuthService> logger, IHttpContextAccessor httpContextAccessor)
     {
         _configuration = configuration;
         _roleManager = roleManager;
         _userManager = userManager;
         _logger = logger;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     //TODO: Loglarda register admin alanı boş, oraya bakılacak ! 
@@ -155,6 +158,18 @@ public class AuthService : IAuthService
 
         return new ResponseModel() { Status = 200, Message = "User created successfully" };
 
+    }
+
+    public string GetUserIdFromToken()
+    {
+
+        if (_httpContextAccessor.HttpContext != null)
+        {
+            string userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+            return userId;
+        }
+
+        throw new BadRequestException("An error occured");
     }
 
     //TODO : Token süresi uzatılabilir.//DONE

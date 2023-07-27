@@ -37,20 +37,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
             .HasOne(x => x.Referee)
             .WithMany(x => x.Fixtures)
             .HasForeignKey(x => x.RefId);
-            
 
-        modelBuilder.Entity<FixtureClub>().HasKey(x => new {x.ClubId,x.FixtureId});
-
-        modelBuilder.Entity<FixtureClub>()
-            .HasOne(x => x.Fixture)
-            .WithMany(x => x.FixtureClubs)
-            .HasForeignKey(x => x.FixtureId);
-
-        modelBuilder.Entity<FixtureClub>()
-            .HasOne(x => x.Club)
-            .WithMany(x => x.FixtureClubs)
-            .HasForeignKey(x => x.ClubId);
-        
         modelBuilder.Entity<Referee>()
             .HasOne(x => x.Users)
             .WithOne(x => x.Referee)
