@@ -1,7 +1,7 @@
 ﻿#nullable enable
 namespace RefereeApp.Models.AuthModels;
 
-public class ResponseModel
+public class LoginResponseModel
 {
     public int? Status { get; set; }
     public string? Message { get; set; }

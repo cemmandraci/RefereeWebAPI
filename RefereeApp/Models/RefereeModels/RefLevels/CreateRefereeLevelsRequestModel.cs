@@ -18,8 +18,6 @@ public class CreateRefereeLevelsRequestModelValidator : AbstractValidator<Create
     public CreateRefereeLevelsRequestModelValidator()
     {
         RuleFor(x => x.StatusLevel).NotEmpty().Must(Distance).WithMessage("StatusLevel must be between 1-10");
-        RuleFor(x => x.CreatedAt).NotEmpty();
-        RuleFor(x => x.CreatedBy).NotEmpty();
     }
 
     public bool Distance(int dist)

@@ -4,8 +4,10 @@ namespace RefereeApp.Abstractions;
 
 public interface IAuthService
 {
-    public Task<ResponseModel> Login(LoginModel request);
-    public Task<ResponseModel> Register(RegisterModel request);
-    public Task<ResponseModel> RegisterAdmin(RegisterModel request);
+    public Task<LoginResponseModel> Login(LoginModel request);
+    public Task<RegisterResponseModel> Register(RegisterModel request);
+    public Task<RegisterResponseModel> RegisterAdmin(RegisterModel request);
+    public Task<RegisterResponseModel> RegisterEmployee(RegisterModel request);
+    string GetUsernameFromToken();
     string GetUserIdFromToken();
 }

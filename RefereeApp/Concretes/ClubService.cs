@@ -20,7 +20,7 @@ public class ClubService : IClubService
         _authService = authService;
     }
 
-    //TODO : Club - Genel test çevrilecek.
+    //TODO : Club - Genel test çevrilecek. //DONE
     public async Task<ClubResponseModel> GetById(int id)
     {
         _logger.LogInformation("Club GetById() | Function is starting.");
@@ -75,7 +75,7 @@ public class ClubService : IClubService
 
     public async Task<ClubResponseModel> Create(CreateClubRequestModel request)
     {
-        var userId = _authService.GetUserIdFromToken();
+        var username = _authService.GetUsernameFromToken();
         var isExist = await _applicationDbContext.Clubs
             .AsNoTracking()
             .Where(x => x.ClubName == request.ClubName)
@@ -93,9 +93,9 @@ public class ClubService : IClubService
         {
             ClubName = request.ClubName,
             CreatedAt = DateTime.Now,
-            CreatedBy = userId,
+            CreatedBy = username,
             ChangedAt = DateTime.Now,
-            ChangedBy = userId,
+            ChangedBy = username,
             IsDeleted = request.IsDeleted
         };
 
@@ -125,7 +125,7 @@ public class ClubService : IClubService
 
     public async Task<ClubResponseModel> Update(UpdateClubRequestModel request)
     {
-        var userId = _authService.GetUserIdFromToken();
+        var username = _authService.GetUsernameFromToken();
         _logger.LogInformation("Club Update() | Function is starting.");
         _logger.LogInformation("Club Update() | To finding entity from db is starting.");
         var club = await _applicationDbContext.Clubs
@@ -147,7 +147,7 @@ public class ClubService : IClubService
 
         if (request.ClubName is not null) club.ClubName = request.ClubName;
         if (request.ChangedAt is not null) club.ChangedAt = DateTime.Now;
-        if (request.ChangedBy is not null) club.ChangedBy = userId;
+        if (request.ChangedBy is not null) club.ChangedBy = username;
         if (request.IsDeleted is not null) club.IsDeleted = (bool)request.IsDeleted;
 
         await _applicationDbContext.SaveChangesAsync();

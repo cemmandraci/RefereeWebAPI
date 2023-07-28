@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using RefereeApp.Models.RefereeModels.RefereeRegions;
 using RefereeApp.Models.RefereeModels.RefLevels;
 
 namespace RefereeApp.Models.RefereeModels;
@@ -20,10 +21,7 @@ public class CreateRefereeRequestModelValidator : AbstractValidator<CreateRefere
 {
     public CreateRefereeRequestModelValidator()
     {
-        RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.IsActive).NotEmpty();
-        RuleFor(x => x.CreatedAt).NotEmpty();
-        RuleFor(x => x.CreatedBy).NotEmpty();
         RuleFor(x => x.RefereeRegion).SetValidator(x => new CreateRefereeRegionRequestModelValidator());
         RuleFor(x => x.RefereeLevels).SetValidator(x => new CreateRefereeLevelsRequestModelValidator());
     }

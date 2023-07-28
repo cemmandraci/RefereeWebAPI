@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using RefereeApp.Entities.Enums;
 
-namespace RefereeApp.Models.RefereeModels;
+namespace RefereeApp.Models.RefereeModels.RefereeRegions;
 
 public class CreateRefereeRegionRequestModel
 {
@@ -18,7 +18,5 @@ public class CreateRefereeRegionRequestModelValidator : AbstractValidator<Create
     public CreateRefereeRegionRequestModelValidator()
     {
         RuleFor(x => x.RegionId).IsInEnum();
-        RuleFor(x => x.CreatedBy).NotNull();
-        RuleFor(x => x.CreatedAt).NotNull();
     }
 }

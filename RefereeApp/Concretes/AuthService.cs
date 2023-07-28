@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography.Pkcs;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -28,9 +29,9 @@ public class AuthService : IAuthService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    //TODO: Loglarda register admin alanı boş, oraya bakılacak ! 
-    //TODO: Log testleri çevrilecek !
-    public async Task<ResponseModel> Login(LoginModel request)
+    //TODO: Loglarda register admin alanı boş, oraya bakılacak ! //DONE
+    //TODO: Log testleri çevrilecek ! //DONE
+    public async Task<LoginResponseModel> Login(LoginModel request)
     {
         _logger.LogInformation("Login User | Function is starting.");
         var user = await _userManager.FindByNameAsync(request.UserName);
@@ -50,11 +51,11 @@ public class AuthService : IAuthService
                 authClaims.Add(new Claim(ClaimTypes.Role, userRole));
             }
 
-            var token = GetToken(authClaims);
+            var token = GetToken(authClaims,user.Id);
             
             _logger.LogInformation("Login User | {username} user is authenticating the system.", user.UserName);
 
-            return new ResponseModel()
+            return new LoginResponseModel()
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo
@@ -65,15 +66,17 @@ public class AuthService : IAuthService
         throw new BadRequestException("Username or password is not correct !");
     }
 
-    public async Task<ResponseModel> Register(RegisterModel request)
+    public async Task<RegisterResponseModel> Register(RegisterModel request)
     {
-        _logger.LogInformation("Register User | Function is starting");
+        _logger.LogInformation("RegisterUser() | Function is starting");
         var userExist = await _userManager.FindByNameAsync(request.UserName);
         if (userExist != null)
         {
-            _logger.LogInformation("Register User | {username} does not exist.",request.UserName);
+            _logger.LogInformation("Register() | {username} does not exist.",request.UserName);
             throw new NotFoundException("An error occured !");
         }
+        
+        _logger.LogInformation("Register() | User creation is starting");
 
         var newUser = new User()
         {
@@ -86,32 +89,50 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
-            _logger.LogInformation("Register User | New user couldn't be created.");
+            _logger.LogInformation("Register() | New user couldn't be created.");
             throw new BadRequestException("An error occured !");
         }
+        
+        _logger.LogInformation("Register() | Default role assign is starting.");
 
-        var response = new ResponseModel()
+        var defaultRole = _roleManager.FindByNameAsync(UserRoles.Referee).Result;
+
+        if (defaultRole != null)
+        {
+            if (defaultRole.Name != null)
+            {
+                IdentityResult roleResult = await _userManager.AddToRoleAsync(newUser, defaultRole.Name);
+            }
+        }
+
+        var response = new RegisterResponseModel()
         {
             Status = 200,
             Message = "User has been succesfully created."
         };
         
-        _logger.LogInformation("Register User | User successfully created.");
+        _logger.LogInformation("Register() | User has been successfully created.");
 
         return response;
 
     }
     
     
-    //TODO : Register admin ile roller nasıl çalışıyor , debug atılacak , belki güncellenebilir !
-    public async Task<ResponseModel> RegisterAdmin(RegisterModel request)
+    //TODO : Register admin ile roller nasıl çalışıyor , debug atılacak , belki güncellenebilir ! //DONE
+    //TODO : Loglar kontrol edilecek !
+    public async Task<RegisterResponseModel> RegisterAdmin(RegisterModel request)
     {
+        _logger.LogInformation("RegisterAdmin() | Function is starting");
+        _logger.LogInformation("RegisterAdmin() | Exist user controlling");
         var userExist = await _userManager.FindByNameAsync(request.UserName);
         if (userExist != default)
         {
-            return new ResponseModel() { Status = 400, Message = "Username is already exist." };
+            _logger.LogError("{username} username is already exist in database !",request.UserName);
+            throw new BadRequestException("An error occured !");
         }
-
+        
+        _logger.LogInformation("RegisterAdmin() | User creation is starting");
+        
         var user = new User()
         {
             Email = request.Email,
@@ -123,8 +144,11 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
+            _logger.LogError("RegisterAdmin() | CreateAsync() couldn't created.");
             throw new BadRequestException("An error occured !");
         }
+        
+        _logger.LogInformation("RegisterAdmin() | Role assigns are starting.");
 
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
         {
@@ -155,28 +179,93 @@ public class AuthService : IAuthService
         {
             await _userManager.AddToRoleAsync(user, UserRoles.Referee);
         }
-
-        return new ResponseModel() { Status = 200, Message = "User created successfully" };
+        
+        _logger.LogInformation("RegisterAdmin() | User has been successfully created.");
+        
+        return new RegisterResponseModel() { Status = 200, Message = "User has been successfully created." };
 
     }
 
-    public string GetUserIdFromToken()
+    public async Task<RegisterResponseModel> RegisterEmployee(RegisterModel request)
+    {
+        _logger.LogInformation("RegisterEmployee() | Function is starting");
+        _logger.LogInformation("RegisterEmployee() | Exist user controlling");
+        var userExist = await _userManager.FindByNameAsync(request.UserName);
+        if (userExist != null)
+        {
+            _logger.LogError("RegisterEmployee() | {username} username has already exist in database",request.UserName);
+            throw new BadRequestException("An error occured !");
+        }
+        
+        _logger.LogInformation("RegisterEmployee() | User creation is starting");
+
+        var user = new User()
+        {
+            UserName = request.Email,
+            Email = request.Email,
+            SecurityStamp = Guid.NewGuid().ToString()
+        };
+        
+        var result = await _userManager.CreateAsync(user, request.Password);
+
+        if (!result.Succeeded)
+        {
+            _logger.LogError("RegisterEmployee() | CreateAsync() couldn't created.");
+            throw new BadRequestException("An error occured !");
+        }
+        
+        if (await _roleManager.RoleExistsAsync(UserRoles.Employee))
+        {
+            await _userManager.AddToRoleAsync(user, UserRoles.Employee);
+        }
+        
+        if (await _roleManager.RoleExistsAsync(UserRoles.Referee))
+        {
+            await _userManager.AddToRoleAsync(user, UserRoles.Referee);
+        }
+        
+        _logger.LogInformation("RegisterEmployee() | User has been successfully created.");
+
+        return new RegisterResponseModel()
+        {
+            Status = 200,
+            Message = "User has been successfully created."
+        };
+
+    }
+
+    public string GetUsernameFromToken()
     {
 
         if (_httpContextAccessor.HttpContext != null)
         {
-            string userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
-            return userId;
+            string username = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+            return username;
         }
 
         throw new BadRequestException("An error occured");
     }
 
+    public string GetUserIdFromToken()
+    {
+        if (_httpContextAccessor.HttpContext != null)
+        {
+            string userId = _httpContextAccessor.HttpContext.User.Claims.First(i => i.Type == ClaimTypes.NameIdentifier)
+                .Value;
+
+            return userId;
+        }
+
+        throw new BadRequestException("An error occured!");
+    }
+
     //TODO : Token süresi uzatılabilir.//DONE
-    private JwtSecurityToken GetToken(List<Claim> authClaims)
+    private JwtSecurityToken GetToken(List<Claim> authClaims, string userId)
     {
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"] ?? throw new NullReferenceException("An error occured !")));
-
+        
+        authClaims.Add(new Claim("sub", userId.ToString()));
+        
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],
             audience: _configuration["JWT:ValidAudience"],

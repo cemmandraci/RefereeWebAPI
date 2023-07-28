@@ -18,7 +18,7 @@ namespace RefereeApp.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<ActionResult<ResponseModel>> Login([FromBody] LoginModel request)
+        public async Task<ActionResult<LoginResponseModel>> Login([FromBody] LoginModel request)
         {
             var user = await _authService.Login(request);
             return Ok(user);
@@ -26,7 +26,7 @@ namespace RefereeApp.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<ActionResult<ResponseModel>> Register([FromBody] RegisterModel request)
+        public async Task<ActionResult<RegisterResponseModel>> Register([FromBody] RegisterModel request)
         {
             var user = await _authService.Register(request);
             return Ok(user);
@@ -34,9 +34,17 @@ namespace RefereeApp.Controllers
 
         [HttpPost]
         [Route("register-admin")]
-        public async Task<ActionResult<ResponseModel>> RegisterAdmin([FromBody] RegisterModel request)
+        public async Task<ActionResult<RegisterResponseModel>> RegisterAdmin([FromBody] RegisterModel request)
         {
             var user = await _authService.RegisterAdmin(request);
+            return Ok(user);
+        }
+        
+        [HttpPost]
+        [Route("register-employee")]
+        public async Task<ActionResult<RegisterResponseModel>> RegisterEmployee([FromBody] RegisterModel request)
+        {
+            var user = await _authService.RegisterEmployee(request);
             return Ok(user);
         }
 
