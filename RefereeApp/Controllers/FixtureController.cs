@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RefereeApp.Abstractions;
 using RefereeApp.Models.FixtureModels;
-using RefereeApp.Models.RefereeModels;
-using RefereeApp.Models.RefLevels;
 
 namespace RefereeApp.Controllers
 {
@@ -32,7 +30,8 @@ namespace RefereeApp.Controllers
             var fixture = await _fixtureService.GetById(id);
             return Ok(fixture);
         }
-
+        
+        [Authorize(Roles = ("Admin,Employee"))]
         [HttpPost]
         public async Task<ActionResult<FixtureResponseModel>> Create(CreateFixtureRequestModel request)
         {
@@ -40,6 +39,7 @@ namespace RefereeApp.Controllers
             return Ok(fixture);
         }
 
+        [Authorize(Roles = ("Admin,Employee"))]
         [HttpPut]
         public async Task<ActionResult<FixtureResponseModel>> Update(UpdateFixtureRequestModel request)
         {

@@ -57,6 +57,8 @@ public class AuthService : IAuthService
 
             return new LoginResponseModel()
             {
+                Status = 200,
+                Message = "Login has been succesfull.",
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo
             };
@@ -120,6 +122,7 @@ public class AuthService : IAuthService
     
     //TODO : Register admin ile roller nasıl çalışıyor , debug atılacak , belki güncellenebilir ! //DONE
     //TODO : Loglar kontrol edilecek !
+    //TODO : Userlar liste halinde gelicek.
     public async Task<RegisterResponseModel> RegisterAdmin(RegisterModel request)
     {
         _logger.LogInformation("RegisterAdmin() | Function is starting");
@@ -201,7 +204,7 @@ public class AuthService : IAuthService
 
         var user = new User()
         {
-            UserName = request.Email,
+            UserName = request.UserName,
             Email = request.Email,
             SecurityStamp = Guid.NewGuid().ToString()
         };

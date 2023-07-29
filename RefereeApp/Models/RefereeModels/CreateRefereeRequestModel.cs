@@ -21,7 +21,6 @@ public class CreateRefereeRequestModelValidator : AbstractValidator<CreateRefere
 {
     public CreateRefereeRequestModelValidator()
     {
-        RuleFor(x => x.IsActive).NotEmpty();
         RuleFor(x => x.RefereeRegion).SetValidator(x => new CreateRefereeRegionRequestModelValidator());
         RuleFor(x => x.RefereeLevels).SetValidator(x => new CreateRefereeLevelsRequestModelValidator());
     }

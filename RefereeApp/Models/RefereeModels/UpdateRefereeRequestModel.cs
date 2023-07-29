@@ -7,6 +7,7 @@ namespace RefereeApp.Models.RefereeModels;
 public class UpdateRefereeRequestModel
 {
     public int Id { get; set; }
+    public string? UserId { get; set; }
     public bool? IsActive { get; set; }
     public DateTime ChangedAt { get; set; } = DateTime.Now;
     public string ChangedBy { get; set; }

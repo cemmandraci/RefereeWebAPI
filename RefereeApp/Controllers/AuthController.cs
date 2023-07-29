@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RefereeApp.Abstractions;
 using RefereeApp.Models.AuthModels;
-using RefereeApp.Models.ClubModels;
 
 namespace RefereeApp.Controllers
 {
@@ -24,6 +24,7 @@ namespace RefereeApp.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = ("Admin,Employee"))]
         [HttpPost]
         [Route("register")]
         public async Task<ActionResult<RegisterResponseModel>> Register([FromBody] RegisterModel request)
@@ -32,6 +33,7 @@ namespace RefereeApp.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = ("Admin"))]
         [HttpPost]
         [Route("register-admin")]
         public async Task<ActionResult<RegisterResponseModel>> RegisterAdmin([FromBody] RegisterModel request)
@@ -40,6 +42,7 @@ namespace RefereeApp.Controllers
             return Ok(user);
         }
         
+        [Authorize(Roles = ("Admin"))]
         [HttpPost]
         [Route("register-employee")]
         public async Task<ActionResult<RegisterResponseModel>> RegisterEmployee([FromBody] RegisterModel request)

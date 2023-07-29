@@ -31,6 +31,7 @@ namespace RefereeApp.Controllers
             return Ok(club);
         }
 
+        [Authorize(Roles = ("Admin,Employee"))]
         [HttpPost]
         public async Task<ActionResult<ClubResponseModel>> Create(CreateClubRequestModel request)
         {
@@ -38,6 +39,7 @@ namespace RefereeApp.Controllers
             return Ok(club);
         }
 
+        [Authorize(Roles = ("Admin,Employee"))]
         [HttpPut]
         public async Task<ActionResult<ClubResponseModel>> Update(UpdateClubRequestModel request)
         {

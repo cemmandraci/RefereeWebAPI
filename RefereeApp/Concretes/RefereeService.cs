@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RefereeApp.Abstractions;
 using RefereeApp.Data;
 using RefereeApp.Entities;
@@ -126,7 +124,6 @@ public class RefereeService : IRefereeService
     public async Task<RefereeResponseModel> Create(CreateRefereeRequestModel request)
     {
         var username = _authService.GetUsernameFromToken();
-        var userId = _authService.GetUserIdFromToken();
         _logger.LogInformation("Referee Create() | Function is starting.");
         var referee = new Referee()
         {
@@ -200,7 +197,6 @@ public class RefereeService : IRefereeService
     public async Task<RefereeResponseModel> Update(UpdateRefereeRequestModel request)
     {
         var username = _authService.GetUsernameFromToken();
-        var userId = _authService.GetUserIdFromToken();
         _logger.LogInformation("Referee Update() | Function is starting.");
         _logger.LogInformation("Referee Update() | To finding entity from db is starting.");
         var entity = await _applicationDbContext.Referees
@@ -214,8 +210,9 @@ public class RefereeService : IRefereeService
             _logger.LogError("Referee Update() | Fetching {id} entity is failed.", request.Id);
             throw new NotFoundException("An error occured !");
         }
-        
-        if(request.IsActive is not null) entity.IsActive = (bool)request.IsActive;
+
+        if (request.UserId is not null) entity.UserId = request.UserId;
+        if (request.IsActive is not null) entity.IsActive = (bool)request.IsActive;
         if (request.RefereeRegion.RegionId is not null) entity.RefereeRegion.RegionId = (Region)request.RefereeRegion.RegionId;
         if (request.RefereeRegion.IsDeleted is not null) entity.RefereeRegion.IsDeleted = (bool)request.RefereeRegion.IsDeleted;
         if (request.RefereeLevel.StatusLevel is not null) entity.RefereeLevel.StatusLevel = request.RefereeLevel.StatusLevel;
@@ -224,13 +221,16 @@ public class RefereeService : IRefereeService
         entity.ChangedBy = username;
         entity.ChangedAt = DateTime.Now;
         entity.RefereeRegion.ChangedAt = DateTime.Now;
+        entity.RefereeRegion.ChangedBy = username;
         entity.RefereeLevel.ChangedAt = DateTime.Now;
+        entity.RefereeLevel.ChangedBy = username;
 
         await _applicationDbContext.SaveChangesAsync();
 
         var response = new RefereeResponseModel()
         {
             Id = entity.Id,
+            UserId = entity.UserId,
             IsActive = entity.IsActive,
             CreatedAt = entity.CreatedAt,
             CreatedBy = entity.CreatedBy,
