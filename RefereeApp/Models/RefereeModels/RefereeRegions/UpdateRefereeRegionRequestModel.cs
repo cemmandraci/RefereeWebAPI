@@ -10,14 +10,13 @@ public class UpdateRefereeRegionRequestModel
     public string CreatedBy { get; set; }
     public DateTime ChangedAt { get; set; } = DateTime.Now;
     public string ChangedBy { get; set; }
-    public bool IsDeleted { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
 }
 
 public class UpdateRefereeRegionRequestModelValidator : AbstractValidator<UpdateRefereeRegionRequestModel>
 {
     public UpdateRefereeRegionRequestModelValidator()
     {
-        RuleFor(x => x.ChangedBy).NotEmpty();
         RuleFor(x => x.RegionId).IsInEnum();
     }
 }

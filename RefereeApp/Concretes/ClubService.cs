@@ -11,14 +11,15 @@ public class ClubService : IClubService
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly ILogger<ClubService> _logger;
+    private readonly IAuthService _authService;
 
-    public ClubService(ApplicationDbContext applicationDbContext, ILogger<ClubService> logger)
+    public ClubService(ApplicationDbContext applicationDbContext, ILogger<ClubService> logger, IAuthService authService)
     {
         _applicationDbContext = applicationDbContext;
         _logger = logger;
+        _authService = authService;
     }
 
-    //TODO : Club - Genel test çevrilecek.
     public async Task<ClubResponseModel> GetById(int id)
     {
         _logger.LogInformation("Club GetById() | Function is starting.");
@@ -73,14 +74,27 @@ public class ClubService : IClubService
 
     public async Task<ClubResponseModel> Create(CreateClubRequestModel request)
     {
+        var username = _authService.GetUsernameFromToken();
+        var isExist = await _applicationDbContext.Clubs
+            .AsNoTracking()
+            .Where(x => x.ClubName == request.ClubName)
+            .Select(x=>x.ClubName)
+            .FirstOrDefaultAsync();
+
+        if (isExist == request.ClubName)
+        {
+            _logger.LogError("Club name already exist !");
+            throw new BadRequestException("An error occured !");
+        }
+        
         _logger.LogInformation("Club Create() | Function is starting");
         var club = new Club()
         {
             ClubName = request.ClubName,
-            CreatedAt = request.CreatedAt,
-            CreatedBy = request.CreatedBy,
-            ChangedAt = request.ChangedAt,
-            ChangedBy = request.ChangedBy,
+            CreatedAt = DateTime.Now,
+            CreatedBy = username,
+            ChangedAt = DateTime.Now,
+            ChangedBy = username,
             IsDeleted = request.IsDeleted
         };
 
@@ -110,9 +124,11 @@ public class ClubService : IClubService
 
     public async Task<ClubResponseModel> Update(UpdateClubRequestModel request)
     {
+        var username = _authService.GetUsernameFromToken();
         _logger.LogInformation("Club Update() | Function is starting.");
         _logger.LogInformation("Club Update() | To finding entity from db is starting.");
         var club = await _applicationDbContext.Clubs
+            .AsNoTracking()
             .Where(x => x.Id == request.Id)
             .FirstOrDefaultAsync();
 
@@ -122,9 +138,15 @@ public class ClubService : IClubService
             throw new NotFoundException("An error occured !");
         }
 
+        if (club.ClubName == request.ClubName )
+        {
+            _logger.LogError("Club name already exist !");
+            throw new BadRequestException("An error occured !");
+        }
+
         if (request.ClubName is not null) club.ClubName = request.ClubName;
-        if (request.ChangedAt is not null) club.ChangedAt = request.ChangedAt;
-        if (request.ChangedBy is not null) club.ChangedBy = request.ChangedBy;
+        if (request.ChangedAt is not null) club.ChangedAt = DateTime.Now;
+        if (request.ChangedBy is not null) club.ChangedBy = username;
         if (request.IsDeleted is not null) club.IsDeleted = (bool)request.IsDeleted;
 
         await _applicationDbContext.SaveChangesAsync();

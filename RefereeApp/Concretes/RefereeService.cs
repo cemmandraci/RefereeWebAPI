@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RefereeApp.Abstractions;
 using RefereeApp.Data;
 using RefereeApp.Entities;
+using RefereeApp.Entities.Enums;
 using RefereeApp.Exceptions;
 using RefereeApp.Models.RefereeModels;
+using RefereeApp.Models.RefereeModels.RefereeMatches;
 using RefereeApp.Models.RefereeModels.RefereeRegions;
 using RefereeApp.Models.RefLevels;
 
@@ -15,11 +15,13 @@ public class RefereeService : IRefereeService
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly ILogger<RefereeService> _logger;
+    private readonly IAuthService _authService;
 
-    public RefereeService(ApplicationDbContext applicationDbContext, ILogger<RefereeService> logger)
+    public RefereeService(ApplicationDbContext applicationDbContext, ILogger<RefereeService> logger, IAuthService authService)
     {
         _applicationDbContext = applicationDbContext;
         _logger = logger;
+        _authService = authService;
     }
 
     public async Task<List<RefereeResponseModel>> Get()
@@ -116,38 +118,49 @@ public class RefereeService : IRefereeService
         _logger.LogInformation("Referee GetById() | Fetch is successful.");
         return response;
     }
-
-    //TODO : Create senaryosu createdAt ve changedAt default değerleri için postmande test edilecek.
-    //TODO : Genel test çevrilecek !
+    
     public async Task<RefereeResponseModel> Create(CreateRefereeRequestModel request)
     {
+        var username = _authService.GetUsernameFromToken();
         _logger.LogInformation("Referee Create() | Function is starting.");
         var referee = new Referee()
         {
+            UserId = request.UserId,
             IsActive = request.IsActive,
-            CreatedAt = request.CreatedAt,
-            CreatedBy = request.CreatedBy,
-            ChangedAt = request.ChangedAt,
-            ChangedBy = request.ChangedBy,
+            CreatedAt = DateTime.Now,
+            CreatedBy = username,
+            ChangedAt = DateTime.Now,
+            ChangedBy = username,
+            LastAttendMatch = DateTime.Now,
             RefereeRegion = new RefereeRegion()
             {
                 RegionId = request.RefereeRegion.RegionId,
-                CreatedAt = request.RefereeRegion.CreatedAt,
-                CreatedBy = request.RefereeRegion.CreatedBy,
-                ChangedAt = request.RefereeRegion.ChangedAt,
-                ChangedBy = request.RefereeRegion.ChangedBy,
+                CreatedAt = DateTime.Now,
+                CreatedBy = username,
+                ChangedAt = DateTime.Now,
+                ChangedBy = username,
                 IsDeleted = request.RefereeRegion.IsDeleted
             },
             RefereeLevel = new RefereeLevel()
             {
                 StatusLevel = request.RefereeLevels.StatusLevel,
-                CreatedAt = request.RefereeLevels.CreatedAt,
-                CreatedBy = request.RefereeLevels.CreatedBy,
-                ChangedAt = request.RefereeLevels.ChangedAt,
-                ChangedBy = request.RefereeLevels.ChangedBy,
+                CreatedAt = DateTime.Now,
+                CreatedBy = username,
+                ChangedAt = DateTime.Now,
+                ChangedBy = username,
                 IsDeleted = request.RefereeLevels.IsDeleted
-            }
+            },
+            RefereeMatch = request.RefereeMatch.Select(x=> new RefereeMatch()
+            {
+                LastAttendMatch = DateTime.Now,
+                CreatedAt = DateTime.Now,
+                CreatedBy = username,
+                ChangedAt = DateTime.Now,
+                ChangedBy = username,
+                IsDeleted = x.IsDeleted
+            }).ToList()
         };
+        
 
         _applicationDbContext.Add(referee);
         await _applicationDbContext.SaveChangesAsync();
@@ -156,8 +169,8 @@ public class RefereeService : IRefereeService
         {
             Id = referee.Id,
             IsActive = referee.IsActive,
-            RefLevelId = referee.RefLevelId,
-            RefRegionId = referee.RefRegionId,
+            UserId = referee.UserId,
+            LastAttendMatch = referee.LastAttendMatch,
             CreatedAt = referee.CreatedAt,
             CreatedBy = referee.CreatedBy,
             ChangedAt = referee.ChangedAt,
@@ -181,7 +194,17 @@ public class RefereeService : IRefereeService
                 ChangedAt = referee.RefereeLevel.ChangedAt,
                 ChangedBy = referee.RefereeLevel.ChangedBy,
                 IsDeleted = referee.RefereeLevel.IsDeleted
-            }
+            },
+            RefereeMatch = referee.RefereeMatch.Select(match=> new RefereeMatchResponseModel()
+            {
+                Id = match.Id,
+                RefereeId = match.RefereeId,
+                LastAttendMatch = match.LastAttendMatch,
+                CreatedAt = match.CreatedAt,
+                CreatedBy = match.CreatedBy,
+                ChangedAt = match.ChangedAt,
+                ChangedBy = match.ChangedBy
+            }).ToList()
         };
 
         _logger.LogInformation("Referee Create() | Referee entity is created successfully.");
@@ -189,10 +212,10 @@ public class RefereeService : IRefereeService
         return response;
 
     }
-
-    //TODO: RefereeLevel ve RefereeRegion ayrı api den güncellenecek.
+    
     public async Task<RefereeResponseModel> Update(UpdateRefereeRequestModel request)
     {
+        var username = _authService.GetUsernameFromToken();
         _logger.LogInformation("Referee Update() | Function is starting.");
         _logger.LogInformation("Referee Update() | To finding entity from db is starting.");
         var entity = await _applicationDbContext.Referees
@@ -206,20 +229,29 @@ public class RefereeService : IRefereeService
             _logger.LogError("Referee Update() | Fetching {id} entity is failed.", request.Id);
             throw new NotFoundException("An error occured !");
         }
-        
-        if(request.IsActive is not null) entity.IsActive = (bool)request.IsActive;
+
+        if (request.UserId is not null) entity.UserId = request.UserId;
+        if (request.IsActive is not null) entity.IsActive = (bool)request.IsActive;
+        if (request.RefereeRegion.RegionId is not null) entity.RefereeRegion.RegionId = (Region)request.RefereeRegion.RegionId;
+        if (request.RefereeRegion.IsDeleted is not null) entity.RefereeRegion.IsDeleted = (bool)request.RefereeRegion.IsDeleted;
+        if (request.RefereeLevel.StatusLevel is not null) entity.RefereeLevel.StatusLevel = request.RefereeLevel.StatusLevel;
+        if (request.RefereeLevel.IsDeleted is not null) entity.RefereeLevel.IsDeleted = (bool)request.RefereeLevel.IsDeleted;
         entity.IsDeleted = request.IsDeleted;
-        entity.ChangedBy = request.ChangedBy;
-        entity.ChangedAt = request.ChangedAt;
+        entity.ChangedBy = username;
+        entity.ChangedAt = DateTime.Now;
+        entity.RefereeRegion.ChangedAt = DateTime.Now;
+        entity.RefereeRegion.ChangedBy = username;
+        entity.RefereeLevel.ChangedAt = DateTime.Now;
+        entity.RefereeLevel.ChangedBy = username;
 
         await _applicationDbContext.SaveChangesAsync();
 
         var response = new RefereeResponseModel()
         {
             Id = entity.Id,
-            RefLevelId = entity.RefLevelId,
-            RefRegionId = entity.RefRegionId,
+            UserId = entity.UserId,
             IsActive = entity.IsActive,
+            LastAttendMatch = entity.LastAttendMatch,
             CreatedAt = entity.CreatedAt,
             CreatedBy = entity.CreatedBy,
             ChangedAt = entity.ChangedAt,

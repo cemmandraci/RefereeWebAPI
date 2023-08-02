@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RefereeApp.Abstractions;
 using RefereeApp.Models.RefereeModels;
-using RefereeApp.Models.RefLevels;
 
 namespace RefereeApp.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RefereeController : ControllerBase
@@ -34,6 +35,7 @@ namespace RefereeApp.Controllers
             return Ok(referee);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<RefereeResponseModel>> Create(CreateRefereeRequestModel request)
         {
@@ -41,6 +43,7 @@ namespace RefereeApp.Controllers
             return Ok(referee);
         }
 
+        [Authorize(Roles = ("Admin,Employee"))]
         [HttpPut]
         public async Task<ActionResult<RefereeResponseModel>> Update(UpdateRefereeRequestModel request)
         {
