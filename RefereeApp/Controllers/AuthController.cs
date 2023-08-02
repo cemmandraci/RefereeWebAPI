@@ -33,7 +33,7 @@ namespace RefereeApp.Controllers
             return Ok(user);
         }
 
-        [Authorize(Roles = ("Admin"))]
+        
         [HttpPost]
         [Route("register-admin")]
         public async Task<ActionResult<RegisterResponseModel>> RegisterAdmin([FromBody] RegisterModel request)

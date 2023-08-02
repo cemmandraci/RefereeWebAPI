@@ -20,7 +20,6 @@ public class ClubService : IClubService
         _authService = authService;
     }
 
-    //TODO : Club - Genel test çevrilecek. //DONE
     public async Task<ClubResponseModel> GetById(int id)
     {
         _logger.LogInformation("Club GetById() | Function is starting.");

@@ -5,6 +5,7 @@ using RefereeApp.Entities;
 using RefereeApp.Entities.Enums;
 using RefereeApp.Exceptions;
 using RefereeApp.Models.RefereeModels;
+using RefereeApp.Models.RefereeModels.RefereeMatches;
 using RefereeApp.Models.RefereeModels.RefereeRegions;
 using RefereeApp.Models.RefLevels;
 
@@ -117,10 +118,7 @@ public class RefereeService : IRefereeService
         _logger.LogInformation("Referee GetById() | Fetch is successful.");
         return response;
     }
-
-    //TODO : Create senaryosu createdAt ve changedAt default değerleri için postmande test edilecek.//DONE
-    //TODO: Admin olarak hakem atamaları yapılacak, role bazlı sınırlandırma getirilecek.
-    //TODO : Genel test çevrilecek !
+    
     public async Task<RefereeResponseModel> Create(CreateRefereeRequestModel request)
     {
         var username = _authService.GetUsernameFromToken();
@@ -133,6 +131,7 @@ public class RefereeService : IRefereeService
             CreatedBy = username,
             ChangedAt = DateTime.Now,
             ChangedBy = username,
+            LastAttendMatch = DateTime.Now,
             RefereeRegion = new RefereeRegion()
             {
                 RegionId = request.RefereeRegion.RegionId,
@@ -150,8 +149,18 @@ public class RefereeService : IRefereeService
                 ChangedAt = DateTime.Now,
                 ChangedBy = username,
                 IsDeleted = request.RefereeLevels.IsDeleted
-            }
+            },
+            RefereeMatch = request.RefereeMatch.Select(x=> new RefereeMatch()
+            {
+                LastAttendMatch = DateTime.Now,
+                CreatedAt = DateTime.Now,
+                CreatedBy = username,
+                ChangedAt = DateTime.Now,
+                ChangedBy = username,
+                IsDeleted = x.IsDeleted
+            }).ToList()
         };
+        
 
         _applicationDbContext.Add(referee);
         await _applicationDbContext.SaveChangesAsync();
@@ -161,6 +170,7 @@ public class RefereeService : IRefereeService
             Id = referee.Id,
             IsActive = referee.IsActive,
             UserId = referee.UserId,
+            LastAttendMatch = referee.LastAttendMatch,
             CreatedAt = referee.CreatedAt,
             CreatedBy = referee.CreatedBy,
             ChangedAt = referee.ChangedAt,
@@ -184,7 +194,17 @@ public class RefereeService : IRefereeService
                 ChangedAt = referee.RefereeLevel.ChangedAt,
                 ChangedBy = referee.RefereeLevel.ChangedBy,
                 IsDeleted = referee.RefereeLevel.IsDeleted
-            }
+            },
+            RefereeMatch = referee.RefereeMatch.Select(match=> new RefereeMatchResponseModel()
+            {
+                Id = match.Id,
+                RefereeId = match.RefereeId,
+                LastAttendMatch = match.LastAttendMatch,
+                CreatedAt = match.CreatedAt,
+                CreatedBy = match.CreatedBy,
+                ChangedAt = match.ChangedAt,
+                ChangedBy = match.ChangedBy
+            }).ToList()
         };
 
         _logger.LogInformation("Referee Create() | Referee entity is created successfully.");
@@ -192,8 +212,7 @@ public class RefereeService : IRefereeService
         return response;
 
     }
-
-    //TODO: RefereeLevel ve RefereeRegion ayrı api den güncellenecek.
+    
     public async Task<RefereeResponseModel> Update(UpdateRefereeRequestModel request)
     {
         var username = _authService.GetUsernameFromToken();
@@ -232,6 +251,7 @@ public class RefereeService : IRefereeService
             Id = entity.Id,
             UserId = entity.UserId,
             IsActive = entity.IsActive,
+            LastAttendMatch = entity.LastAttendMatch,
             CreatedAt = entity.CreatedAt,
             CreatedBy = entity.CreatedBy,
             ChangedAt = entity.ChangedAt,
